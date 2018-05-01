@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<!--
+Example document accessing the data available as json object on /json
+Jens Dede, 2018
+
+github@jdede.de
+
+//-->
+<html lang="en">
+  <head>
+    <title>Test page</title>
+    <meta charset="utf-8"/>
+    <script>
+    function loadJSON(path, success, error)
+    {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function()
+      {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            if (success)
+              success(JSON.parse(xhr.responseText));
+            } else {
+              if (error)
+                error(xhr);
+            }
+        }
+      };
+      xhr.open("GET", path, true);
+      xhr.send();
+    }
+
+    function getData(path)
+    {
+      loadJSON(
+        path,
+	function(data) {
+	  // Success
+	  console.log(data);
+	  var outString = ""
+	  for (var key in data) {
+            outString += "Sensor \"" + key + "\": " + data[key] + " &deg;C</br>";
+	  }
+	  document.getElementById("data").innerHTML = outString;
+            
+	},
+	function(xhr) {
+	  // Error
+	  console.error(xhr);
+	  document.getElementById("data").innerHTML = "Error receiving data";
+	}
+      );
+    }
+
+    getData("/json")
+
+    </script>
+  </head>
+  <body>
+  <h2>Data from <a href="/json"><code>/json</code></a></h2>
+    <p>
+      <span id="data" style="border-style: none; padding: 10px;">No data received yet</span>
+    </p>
+    <button type="button" onclick="getData('/json')">update</button>
+  </body>
+</html>
