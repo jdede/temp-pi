@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
 Example document accessing the data available as json object on /json
-Jens Dede, 2018
+Jens Dede <github@jdede.de>, 2018
 
 github@jdede.de
 
@@ -34,21 +34,21 @@ github@jdede.de
     {
       loadJSON(
         path,
-	function(data) {
-	  // Success
-	  console.log(data);
-	  var outString = ""
-	  for (var key in data) {
+    function(data) {
+      // Success
+      console.log(data);
+      var outString = ""
+      for (var key in data) {
             outString += "Sensor \"" + key + "\": " + data[key] + " &deg;C</br>";
-	  }
-	  document.getElementById("data").innerHTML = outString;
-            
-	},
-	function(xhr) {
-	  // Error
-	  console.error(xhr);
-	  document.getElementById("data").innerHTML = "Error receiving data";
-	}
+      }
+      document.getElementById("data").innerHTML = outString;
+
+    },
+    function(xhr) {
+      // Error
+      console.error(xhr);
+      document.getElementById("data").innerHTML = "Error receiving data";
+    }
       );
     }
 

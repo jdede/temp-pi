@@ -1,3 +1,4 @@
+# WSGI-configuration for apache2 and temp-pi
 import os
 import sys
 

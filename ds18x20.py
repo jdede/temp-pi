@@ -9,6 +9,8 @@ resistor between 3v3 and GPIO4 and enable 1-wire using
 raspi-config
 
 This driver reads out all connected sensors and returns them as a dict
+
+Jens Dede <github@jdede.de>, 2018
 """
 
 import os

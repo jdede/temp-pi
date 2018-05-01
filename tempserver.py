@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+"""
+Basic Flask server serving temperature readings on a RaspberryPi
+
+Jens Dede <github@jdede.de>, 2018
+"""
 
 from flask import Flask
 from flask import Response
@@ -15,15 +20,16 @@ def get_file(filename):
     f = os.path.join(os.path.abspath(os.path.dirname(__file__)), filename)
     return open(f).read()
 
-
+## Serve a static HTML page reading the sensor data from /json
 @app.route("/")
 def index():
     return Response(get_file("index.html"), mimetype="text/html")
 
+## Return the sensor readings as json object
 @app.route("/json")
 def get_temps():
     return jsonify(sensors.read_temps())
-    
+
 ## Serve on all known addresses on port 8080
 if __name__ == "__main__":
     app.run(
