@@ -4,6 +4,8 @@ This is the Temp-Pi-Repository
 Temp-Pi serves the sensor reading from DS1820, DS18S20 and DS18B20 one-wire
 temperature sensors on a RaspberryPi using Apache2, Flask and Python3.
 
+Jens Dede <github@jdede.de>, 2018
+
 Hardware
 --------
 
