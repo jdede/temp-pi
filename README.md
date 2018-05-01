@@ -98,6 +98,7 @@ This section briefly describes the main files in this repository.
   base URL `/`.
 - `temppi.conf`: The configuration of the virtual host for Apache 2
 - `tempserver.wsgi`: The WSGI configuration
+- `avahi`: An example configuration for avahi / mdns-sd
 
 
 License

@@ -1,0 +1,23 @@
+<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+
+<!--
+This files announces the the temp-pi resources using Avahi (mdns-sd)
+
+See avahi.service(5) for more information about this configuration file
+-->
+
+
+<service-group>
+
+  <name replace-wildcards="yes">DS18x20 Sensors on %h</name>
+
+  <service>
+    <type>_http._tcp</type>
+
+    <port>80</port>
+    <txt-record>path=/json</txt-record>
+    <txt-record>type=DS18x20_temp</txt-record>
+  </service>
+
+</service-group>
