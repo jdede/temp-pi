@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 """
 Python driver module for DS18x20 temperature sensors.
@@ -16,6 +17,9 @@ Jens Dede <github@jdede.de>, 2018
 import os
 import glob
 import time
+
+import configparser
+
 
 ## A DS18x20 driver module
 #
@@ -65,7 +69,7 @@ class DS18X20(object):
         while lines[0].strip()[-3:] != "YES":
             time.sleep(0.2)
             lines = self.__read_temp_raw()[node_id]
-
+        
         temp_pos = lines[1].find("t=")
         if temp_pos != -1:
             temp_string = lines[1][temp_pos+2:]
@@ -78,13 +82,59 @@ class DS18X20(object):
         temps = {}
         for node_id in self.get_sensors():
             temps[node_id] = self.read_temp(node_id)
-
         return temps
 
+    # Return a more detailled dict of sensor data
+    def read_all(self, configFile=os.path.join(os.path.abspath(os.path.dirname(__file__)), "sensorconfig.ini")):
+        detailReturn = dict()
 
+        config = configparser.ConfigParser()
+        with open(configFile, "r", encoding="utf8") as f:
+            config.read_file(f)
+
+        defaults = config["DEFAULT"]
+
+        # Fill values from ini file
+        temps = self.read_temps()
+        for node in temps:
+            detailReturn[node] = dict()
+            detailReturn[node]["value"] = temps[node]
+            detailReturn[node]["id"] = node
+            
+            # Add either the sensor-specific data or the default values
+            for df in defaults:
+                if node in config.sections() and df in config[node]:
+                    detailReturn[node][df] = config[node][df]
+                else:
+                    detailReturn[node][df] = defaults[df]
+
+        # Post-processing, replace strings, calculate the corrected values
+        for num, node in enumerate(detailReturn):
+            for v in detailReturn[node]:
+                if type(detailReturn[node][v]) == str:
+                    detailReturn[node][v] = \
+                            detailReturn[node][v].replace("##number##", str(num))
+
+            detailReturn[node]["corrected_value"] = \
+                    detailReturn[node]["value"] - float(detailReturn[node]["offset"])
+
+            # Sensor type
+            node_type = node.split("-")[0]
+            if node_type == "28":
+                detailReturn[node]["type"] = "DS18B20"
+            elif node_type == "10":
+                detailReturn[node]["type"] = "DS18S20/DS1820"
+            else:
+                detailReturn[node]["type"] = "UNKNOWN"
+
+        return detailReturn
+
+
+                    
 if __name__ == "__main__":
     sensor = DS18X20()
 
     while True:
         print(sensor.read_temps())
+        print(sensor.read_all())
         time.sleep(0.5)

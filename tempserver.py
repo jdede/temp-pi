@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
 Basic Flask server serving temperature readings on a RaspberryPi
 
@@ -29,6 +31,11 @@ def index():
 @app.route("/json")
 def get_temps():
     return jsonify(sensors.read_temps())
+
+## Return detailed information
+@app.route("/detailjson")
+def get_details():
+    return jsonify(sensors.read_all())
 
 ## Return a signe value
 @app.route("/json/<sensor_id>")
