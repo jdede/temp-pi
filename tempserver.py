@@ -30,6 +30,16 @@ def index():
 def get_temps():
     return jsonify(sensors.read_temps())
 
+## Return a signe value
+@app.route("/json/<sensor_id>")
+def get_temp_value(sensor_id):
+    temps = sensors.read_temps()
+    if sensor_id in temps:
+        return jsonify(temps[sensor_id])
+    else:
+        return Response("Sensor not found", 404)
+
+
 ## Serve on all known addresses on port 8080
 if __name__ == "__main__":
     app.run(
