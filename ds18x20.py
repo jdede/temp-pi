@@ -34,6 +34,8 @@ class DS18X20(object):
 
         self.base_dir = base_dir
 
+        self.raw_temps_cache = {}
+
         # For DS1820 and DS18S20: 10*
         # For DS18B20: 28*
         for device in \
@@ -47,14 +49,26 @@ class DS18X20(object):
 
 
     # Read the raw temperature string
-    def __read_temp_raw(self):
-        raw_temps = {}
-        for node in self.device_data_files:
-            lines = None
-            with open(self.device_data_files[node], "r") as f:
-                lines = f.readlines()
-            raw_temps[node] = lines
-        return raw_temps
+    def __read_temp_raw(self, timeout=30):
+        # Cache the values with a default timeout of 30 seconds as the file system
+        # access is quite slow...
+        cur_time = time.time()
+        if len(self.raw_temps_cache.keys()) == 0 or \
+            cur_time - float(list(self.raw_temps_cache.keys())[0]) > timeout:
+                self.raw_temps_cache = {}
+                self.raw_temps_cache[cur_time] = {}
+                for node in self.device_data_files:
+                    lines = None
+                    with open(self.device_data_files[node], "r") as f:
+                        lines = f.readlines()
+                    self.raw_temps_cache[cur_time][node] = lines
+                return self.raw_temps_cache[cur_time]
+        else:
+            return self.raw_temps_cache[list(self.raw_temps_cache.keys())[0]]
+
+    # Get timestamp of last data
+    def get_last_data_timestamp(self):
+        return float(list(self.raw_temps_cache.keys())[0])
 
     ## Return the id of all known and connected sensors
     def get_sensors(self):
@@ -115,8 +129,14 @@ class DS18X20(object):
                     detailReturn[node][v] = \
                             detailReturn[node][v].replace("##number##", str(num))
 
+                # Convert to proper data types (not string)
+                detailReturn[node][v] = self.__to_generic_type(detailReturn[node][v])
+
             detailReturn[node]["corrected_value"] = \
                     detailReturn[node]["value"] - float(detailReturn[node]["offset"])
+
+            # Local timestamp
+            detailReturn[node]["timestamp"] = self.get_last_data_timestamp()
 
             # Sensor type
             node_type = node.split("-")[0]
@@ -129,6 +149,16 @@ class DS18X20(object):
 
         return detailReturn
 
+    # Convert a value to float, int or string
+    def __to_generic_type(self, value):
+        if type(value) != str:
+            return value
+        elif value.isnumeric():
+            return int(value)
+        try:
+            return float(value)
+        except:
+            return value
 
                     
 if __name__ == "__main__":
@@ -137,4 +167,4 @@ if __name__ == "__main__":
     while True:
         print(sensor.read_temps())
         print(sensor.read_all())
-        time.sleep(0.5)
+        time.sleep(5)
